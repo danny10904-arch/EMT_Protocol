@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Check List</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            -webkit-user-select: none;
+            user-select: none;
+            touch-action: manipulation;
+        }
+
+        .checked-text {
+            text-decoration: line-through;
+            color: #9ca3af;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .logic-lock {
+            opacity: 0.3;
+            pointer-events: none;
+            transition: all 0.3s;
+        }
+
+        /* 時間軸效果 */
+        .timeline-line {
+            height: 4px;
+            background: #e5e7eb;
+            position: absolute;
+            top: 18px;
+            left: 10%;
+            right: 10%;
+            z-index: 0;
+        }
+
+        .timeline-progress {
+            height: 4px;
+            background: #f97316;
+            position: absolute;
+            top: 18px;
+            left: 10%;
+            width: 0%;
+            z-index: 1;
+            transition: width 0.5s ease;
+        }
+
+        .step-circle {
+            width: 36px;
+            height: 36px;
+            border-radius: 999px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+            border: 4px solid white;
+            transition: all 0.3s;
+        }
+
+        /* 雙層標題樣式 */
+        .med-section-title {
+            border-left: 4px solid #2563eb;
+            padding-left: 8px;
+            margin-bottom: 12px;
+            font-weight: bold;
+            color: #1e40af;
+            font-size: 1.1rem;
+        }
+
+        .med-sub-title {
+            background: #f3f4f6;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            color: #4b5563;
+            margin-top: 8px;
+            margin-bottom: 4px;
+            display: inline-block;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-100 font-sans">
+
+    <!-- 主首頁 -->
+    <div id="home" class="tab-content active p-4">
+        <header class="text-center py-6">
+            <h1 class="text-2xl font-bold text-gray-800">EMS 快速評估系統</h1>
+        </header>
+        <div class="grid grid-cols-2 gap-4 max-w-md mx-auto">
+            <button onclick="showTab('medical')"
+                class="col-span-1 bg-blue-600 text-white p-6 rounded-3xl shadow-lg flex flex-col items-center active:scale-95 transition">
+                <span class="text-3xl mb-2">🩺</span><span class="font-bold">內科評估</span>
+            </button>
+            <button onclick="showTab('trauma')"
+                class="col-span-1 bg-red-600 text-white p-6 rounded-3xl shadow-lg flex flex-col items-center active:scale-95 transition">
+                <span class="text-3xl mb-2">🩹</span><span class="font-bold">外科評估</span>
+            </button>
+            <button onclick="showTab('ntg_flow')"
+                class="col-span-2 bg-orange-500 text-white p-5 rounded-2xl shadow-md flex items-center justify-between active:scale-[0.98] transition">
+                <div class="flex items-center"><span class="text-2xl mr-3">💊</span><span class="font-bold text-lg">NTG
+                        舌下含錠</span></div>
+
+            </button>
+            <button onclick="showTab('broncho_flow')"
+                class="col-span-2 bg-teal-600 text-white p-5 rounded-2xl shadow-md flex items-center justify-between active:scale-[0.98] transition">
+                <div class="flex items-center"><span class="text-2xl mr-3">🌬️</span><span
+                        class="font-bold text-lg">支氣管擴張劑</span></div>
+
+            </button>
+            <button onclick="showTab('sga_flow')"
+                class="col-span-2 bg-purple-600 text-white p-5 rounded-2xl shadow-md flex items-center justify-between active:scale-[0.98] transition">
+                <div class="flex items-center"><span class="text-2xl mr-3">🫁</span><span class="font-bold text-lg">SGA
+                        呼吸道置入</span></div>
+
+            </button>
+        </div>
+    </div>
+
+    <!-- 內科分頁 -->
+    <div id="medical" class="tab-content bg-white min-h-screen">
+        <nav class="bg-blue-600 text-white p-4 sticky top-0 flex items-center justify-between shadow-lg z-50">
+            <button onclick="showTab('home')" class="flex items-center font-bold">〈 返回</button>
+            <h2 class="font-bold">內科評估流程</h2>
+            <button onclick="resetChecks('medical')" class="bg-blue-800 text-xs px-3 py-1.5 rounded-full">重設勾選</button>
+        </nav>
+        <div class="p-4 space-y-8 pb-20">
+            <section>
+                <span class="med-sub-title">現場安全 / 傳染病防護</span><br>
+                <span class="med-sub-title">救護量能充足</span>
+                <h3 class="med-section-title">初步評估</h3>
+                <div class="ml-2 space-y-4">
+                    <div>
+                        <span class="med-sub-title">意識 (AVPU)</span>
+                    </div>
+
+
+
+                    <div>
+                        <span class="med-sub-title">A(呼吸道)</span>
+                        <div class="mt-2 p-4 bg-gray-50 border rounded-lg shadow-inner">
+                            <p class="text-gray-700 text-sm leading-relaxed">
+                                呼吸道通暢、無雜音
+                            </p>
+                        </div>
+                    </div>
+
+                    <div>
+                        <span class="med-sub-title">B(呼吸)</span>
+                        <div class="mt-2 p-4 bg-gray-50 border rounded-lg shadow-inner">
+                            <p class="text-gray-700 text-sm leading-relaxed">
+                                呼吸深淺快慢，評估時間不超過10秒
+                            </p>
+                        </div>
+                    </div>
+                    <div>
+                        <span class="med-sub-title">C(循環)</span>
+                        <div class="mt-2 space-y-2">
+                            <label class="flex items-center p-3 bg-gray-50 border rounded-lg"><input type="checkbox"
+                                    class="w-6 h-6 mr-3"><span>評估兩側橈動脈是否摸得到、是否對稱</span></label>
+                            <label class="flex items-center p-3 bg-gray-50 border rounded-lg"><input type="checkbox"
+                                    class="w-6 h-6 mr-3"><span>末端是否濕冷</span></label>
+                            <label class="flex items-center p-3 bg-gray-50 border rounded-lg"><input type="checkbox"
+                                    class="w-6 h-6 mr-3"><span>CRT>2秒</span></label>
+                            <label class="flex items-center p-3 bg-gray-50 border rounded-lg"><input type="checkbox"
+                                    class="w-6 h-6 mr-3"><span>膚色蒼白、發紺或異常</span></label>
+
+                        </div>
+                    </div>
+                    <div>
+                        <span class="med-sub-title">輔助檢查</span>
+                        <div class="mt-2 p-4 bg-gray-50 border rounded-lg shadow-inner">
+                            <p class="text-gray-700 text-sm leading-relaxed">
+                                • 血壓、血氧、脈搏、體溫<br>
+                                • 血糖<br>
+                                • EKG<br>
+                                • 中風:G-FAST、Doll's Eye Sign(娃娃眼)、Babinski Sign(刮腳底板)
+                            </p>
+                        </div>
+                    </div>
+                    <h3 class="med-section-title">重點檢查</h3>
+                    <div>
+                        <span class="med-sub-title">胸痛、胸悶、腹痛:詢問現病史(OPQRST)</span>
+
+                        <div>
+                            <span class="med-sub-title">意識</span>
+                            <div class="mt-2 p-4 bg-gray-50 border rounded-lg shadow-inner">
+                                <p class="text-gray-700 text-sm leading-relaxed">
+                                    • GCS<br>
+                                    • 瞳孔<br>
+                                    • 上下肢感覺運動功能<br>
+                                    • 上下肢異常針孔
+                                </p>
+                            </div>
+                        </div>
+                        <div>
+                            <span class="med-sub-title">呼吸</span>
+                            <div class="mt-2 p-4 bg-gray-50 border rounded-lg shadow-inner">
+                                <p class="text-gray-700 text-sm leading-relaxed">
+                                    • 呼吸次數<br>
+                                    • 頸靜脈怒張或塌陷<br>
+                                    • 氣管是否偏移<br>
+                                    • 視診呼吸起伏是否對稱、聽診兩側肺音(肺尖x2、肺底x2)<br>
+                                    • 上下肢浮腫、紅疹、紫斑、異常針孔
+                                </p>
+                            </div>
+                        </div>
+                        <div>
+                            <span class="med-sub-title">腹部</span>
+                            <div class="mt-2 p-4 bg-gray-50 border rounded-lg shadow-inner">
+                                <p class="text-gray-700 text-sm leading-relaxed">
+                                    • 視診腹部是否腫脹、詢問哪裡比較不舒服、觸診是否壓痛、反彈痛<br>
+                                    • 從疼痛部位對側開始，順時針評估，疼痛部位最後
+                                </p>
+                            </div>
+                        </div>
+
+                    </div>
+            </section>
+        </div>
+    </div>
+
+    <!-- 外科頁面 -->
+    <div id="trauma" class="tab-content bg-white min-h-screen">
+        <nav class="bg-red-600 text-white p-4 sticky top-0 flex items-center justify-between shadow-lg z-50">
+            <button onclick="showTab('home')" class="font-bold">〈 返回</button>
+            <h2 class="font-bold">外科評估流程</h2>
+            <button onclick="resetChecks('trauma')" class="bg-red-900 text-xs px-3 py-1.5 rounded-full">重設勾選</button>
+        </nav>
+        <div class="p-4 space-y-8 pb-20">
+            <section>
+                <span class="med-sub-title">現場安全 / 傳染病防護</span><br>
+                <span class="med-sub-title">救護量能充足</span>
+                <h3 class="med-section-title">初步評估</h3>
+                <div class="ml-2 space-y-4">
+                    <div>
+                        <!-- <span class="med-sub-title text-red-600 font-extrabold drop-shadow-sm text-lg">X 可見大出血</span> -->
+                        <span class="med-sub-title text-red-600 font-extrabold drop-shadow-sm">X 可見大出血</span>
+                        <!-- <span class="med-sub-title text-red-600 font-bold">X 可見大出血</span> -->
+                        <!-- <span class="med-sub-title">X 可見大出血</span> -->
+                    </div>
+                    <div>
+                        <span class="med-sub-title">頸椎減移(若有需要) </span>
+                        <div class="mt-2 p-4 bg-gray-50 border rounded-lg shadow-inner">
+                            <p class="text-gray-700 text-base font-medium leading-relaxed">
+                                老大頭昏變麻機<br>
+                                若無意識副手可用膝部固定、直接上頸圈
+                            </p>
+                        </div>
+                    </div>
+                    <div>
+                        <span class="med-sub-title">意識 (AVPU)</span>
+                    </div>
+
+                    <div>
+                        <span class="med-sub-title">A(呼吸道)</span>
+                        <div class="mt-2 p-4 bg-gray-50 border rounded-lg shadow-inner">
+                            <p class="text-gray-700 text-sm leading-relaxed">
+                                呼吸道通暢、無雜音
+                            </p>
+                        </div>
+                    </div>
+
+                    <div>
+                        <span class="med-sub-title">B(呼吸)</span>
+                        <div class="mt-2 p-4 bg-gray-50 border rounded-lg shadow-inner">
+                            <p class="text-gray-700 text-sm leading-relaxed">
+                                呼吸深淺快慢，評估時間不超過10秒
+                            </p>
+                        </div>
+                    </div>
+                    <div>
+                        <span class="med-sub-title">C(循環)</span>
+                        <div class="mt-2 space-y-2">
+                            <label class="flex items-center p-3 bg-gray-50 border rounded-lg"><input type="checkbox"
+                                    class="w-6 h-6 mr-3"><span>評估兩側橈動脈是否摸得到、是否對稱</span></label>
+                            <label class="flex items-center p-3 bg-gray-50 border rounded-lg"><input type="checkbox"
+                                    class="w-6 h-6 mr-3"><span>末端是否濕冷</span></label>
+                            <label class="flex items-center p-3 bg-gray-50 border rounded-lg"><input type="checkbox"
+                                    class="w-6 h-6 mr-3"><span>CRT>2秒</span></label>
+                            <label class="flex items-center p-3 bg-gray-50 border rounded-lg"><input type="checkbox"
+                                    class="w-6 h-6 mr-3"><span>膚色蒼白、發紺或異常</span></label>
+                            <label class="flex items-center p-3 bg-gray-50 border rounded-lg"><input type="checkbox"
+                                    class="w-6 h-6 mr-3"><span>骨盆是否穩固</span></label>
+                        </div>
+                    </div>
+                    <div>
+                        <span class="med-sub-title">D(失能)</span>
+                        <div class="mt-2 space-y-2">
+                            <label class="flex items-center p-3 bg-gray-50 border rounded-lg"><input type="checkbox"
+                                    class="w-6 h-6 mr-3"><span>GCS</span></label>
+                            <label class="flex items-center p-3 bg-gray-50 border rounded-lg"><input type="checkbox"
+                                    class="w-6 h-6 mr-3"><span>瞳孔</span></label>
+                            <label class="flex items-center p-3 bg-gray-50 border rounded-lg"><input type="checkbox"
+                                    class="w-6 h-6 mr-3"><span>手腳感覺運動功能</span></label>
+                        </div>
+                    </div>
+
+                    <div>
+                        <span class="med-sub-title">E(暴露)</span>
+                        <div class="mt-2 space-y-2">
+                            <label class="flex items-center p-3 bg-gray-50 border rounded-lg"><input type="checkbox"
+                                    class="w-6 h-6 mr-3"><span>視診頭頸胸腹骨盆四肢有無致命性傷口</span></label>
+                            <label class="flex items-center p-3 bg-gray-50 border rounded-lg"><input type="checkbox"
+                                    class="w-6 h-6 mr-3"><span>頸靜脈怒張或塌陷</span></label>
+                            <label class="flex items-center p-3 bg-gray-50 border rounded-lg"><input type="checkbox"
+                                    class="w-6 h-6 mr-3"><span>氣管是否偏移</span></label>
+                            <label class="flex items-center p-3 bg-gray-50 border rounded-lg"><input type="checkbox"
+                                    class="w-6 h-6 mr-3"><span>皮下氣腫</span></label>
+                            <div class="mt-2 p-4 bg-gray-50 border rounded-lg shadow-inner">
+                                <p class="text-gray-700 text-sm leading-relaxed">
+                                    視情況移除衣物，注意保暖
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <span class="med-sub-title">輔助檢查</span>
+                        <div class="mt-2 p-4 bg-gray-50 border rounded-lg shadow-inner">
+                            <p class="text-gray-700 text-sm leading-relaxed">
+                                • 血壓、血氧、脈搏、體溫<br>
+                                • 血糖(意識不清、糖尿病史)<br>
+                                • TBI(腦損傷):G-FAST、Doll's Eye Sign(娃娃眼)、Babinski Sign(刮腳底板)
+                            </p>
+                        </div>
+                    </div>
+                    <h3 class="med-section-title">重點檢查</h3>
+                    <div>
+                        <div>
+                            <span class="med-sub-title">頭部</span>
+                            <div class="mt-2 p-4 bg-gray-50 border rounded-lg shadow-inner">
+                                <p class="text-gray-700 text-sm leading-relaxed">
+                                    • 檢查頭部是否有傷口、對稱<br>
+                                    • 檢查頭部耳漏、鼻漏、耳後瘀青<br>
+                                </p>
+                            </div>
+                        </div>
+                        <div>
+                            <span class="med-sub-title">胸部</span>
+                            <div class="mt-2 p-4 bg-gray-50 border rounded-lg shadow-inner">
+                                <p class="text-gray-700 text-sm leading-relaxed">
+                                    • 視診瘀傷、傷口，呼吸起伏是否對稱、聽診兩側肺音(肺尖x2、肺底x2)<br>
+                                    • 觸診壓痛情形(鎖骨、上胸、下胸)
+                                </p>
+                            </div>
+                        </div>
+
+                        <div>
+                            <span class="med-sub-title">腹部</span>
+                            <div class="mt-2 p-4 bg-gray-50 border rounded-lg shadow-inner">
+                                <p class="text-gray-700 text-sm leading-relaxed">
+                                    •視診腹部是否瘀傷、傷口、腫脹，詢問哪裡比較不舒服、觸診是否壓痛、反彈痛<br>
+                                    • 從疼痛部位對側開始，順時針評估，疼痛部位最後
+                                </p>
+                            </div>
+                        </div>
+
+                        <div>
+                            <span class="med-sub-title">上肢受傷</span>
+                            <div class="mt-2 p-4 bg-gray-50 border rounded-lg shadow-inner">
+                                <p class="text-gray-700 text-sm leading-relaxed">
+                                    • 視診上肢是否瘀傷、傷口、壓痛、畸形<br>
+                                    •比較兩側上肢是否對稱
+                                </p>
+                            </div>
+                        </div>
+
+                        <div>
+                            <span class="med-sub-title">下肢受傷</span>
+                            <div class="mt-2 p-4 bg-gray-50 border rounded-lg shadow-inner">
+                                <p class="text-gray-700 text-sm leading-relaxed">
+                                    • 視診下肢是否瘀傷、傷口、壓痛、畸形<br>
+                                    •比較兩側下肢是否對稱
+                                </p>
+                            </div>
+                        </div>
+                        <div>
+                            <span class="med-sub-title">背部、臀部(翻身上長背板時檢查)</span>
+                            <div class="mt-2 p-4 bg-gray-50 border rounded-lg shadow-inner">
+                                <p class="text-gray-700 text-sm leading-relaxed">
+                                    •檢查是否瘀傷、傷口、壓痛
+                                </p>
+                            </div>
+                        </div>
+
+                    </div>
+            </section>
+        </div>
+    </div>
+
+
+    <!-- NTG 頁面 -->
+    <div id="ntg_flow" class="tab-content bg-white min-h-screen">
+        <nav class="bg-orange-500 text-white p-4 sticky top-0 flex items-center justify-between shadow-lg z-50">
+            <button onclick="showTab('home')" class="font-bold">〈 返回</button>
+            <h2 class="font-bold">NTG 給藥管理</h2>
+            <button onclick="resetNtgTimeline()" class="bg-orange-700 text-xs px-3 py-1.5 rounded-full">重設</button>
+        </nav>
+        <div class="p-4 space-y-6 pb-24">
+            <div class="bg-red-50 border-2 border-red-200 p-4 rounded-2xl">
+                <h3 class="text-red-700 font-bold mb-3 flex items-center">
+                    <span class="mr-2">🚫</span> 禁忌症確認 (全勾選)
+                </h3>
+                <div class="grid grid-cols-1 gap-2 text-sm">
+                    <label class="flex items-center p-2.5 bg-white rounded-xl border border-red-100"><input
+                            type="checkbox" class="ntg-check w-6 h-6 mr-3"><span>收縮壓 SBP ≥ 90 mmHg</span></label>
+                    <label class="flex items-center p-2.5 bg-white rounded-xl border border-red-100"><input
+                            type="checkbox" class="ntg-check w-6 h-6 mr-3"><span>HR 50 - 100 次/分</span></label>
+                    <label class="flex items-center p-2.5 bg-white rounded-xl border border-red-100"><input
+                            type="checkbox" class="ntg-check w-6 h-6 mr-3"><span>24h內無威爾鋼 / 48h無犀利士</span></label>
+                    <label class="flex items-center p-2.5 bg-white rounded-xl border border-red-100"><input
+                            type="checkbox" class="ntg-check w-6 h-6 mr-3"><span>無過敏史</span></label>
+                    <label class="flex items-center p-2.5 bg-white rounded-xl border border-red-100"><input
+                            type="checkbox" class="ntg-check w-6 h-6 mr-3"><span>無右心衰竭</span></label>
+                </div>
+            </div>
+
+            <div id="ntg-action-area" class="logic-lock space-y-6">
+                <div class="bg-white border-2 border-orange-100 rounded-3xl p-6 shadow-sm relative overflow-hidden">
+                    <h3 class="text-center font-bold text-orange-800 mb-10">給藥紀律：劑量與時間軸</h3>
+                    <div class="relative flex justify-between items-center mb-12 px-2">
+                        <div class="timeline-line"></div>
+                        <div id="ntg-progress" class="timeline-progress"></div>
+                        <div id="ntg-dot-1" class="relative z-10">
+                            <div class="step-circle bg-gray-200 text-gray-500 font-bold">1</div><span
+                                class="absolute -bottom-8 left-1/2 -translate-x-1/2 text-[10px] font-bold text-gray-400">T=0</span>
+                        </div>
+                        <div id="ntg-dot-2" class="relative z-10">
+                            <div class="step-circle bg-gray-200 text-gray-500 font-bold">2</div><span
+                                class="absolute -bottom-8 left-1/2 -translate-x-1/2 text-[10px] font-bold text-gray-400 w-12 text-center">T+5分</span>
+                        </div>
+                        <div id="ntg-dot-3" class="relative z-10">
+                            <div class="step-circle bg-gray-200 text-gray-500 font-bold">3</div><span
+                                class="absolute -bottom-8 left-1/2 -translate-x-1/2 text-[10px] font-bold text-gray-400 w-12 text-center">T+10分</span>
+                        </div>
+                    </div>
+                    <div class="bg-red-50 border-l-4 border-red-500 p-3 rounded-lg">
+                        <p class="text-xs text-red-800 font-bold italic leading-tight">● 每 5 分鐘可給一次，最多給 3 次。</p>
+                        <p class="text-xs text-red-800 font-black underline mt-1 leading-tight">● 總次數必須包含病人已自行服用的次數。</p>
+                    </div>
+                </div>
+                <button id="ntg-btn" onclick="addNtgDose()"
+                    class="w-full bg-orange-500 text-white py-5 rounded-3xl font-black shadow-xl active:scale-95 transition text-xl">執行給藥
+                    (第 <span id="dose-num">1</span> 次)</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- SGA 頁面  -->
+    <div id="sga_flow" class="tab-content bg-white min-h-screen">
+        <nav class="bg-purple-600 text-white p-4 sticky top-0 flex items-center justify-between shadow-md z-50">
+            <button onclick="showTab('home')" class="font-bold">⬅ 返回</button>
+            <h2 class="font-bold">SGA 呼吸道置入</h2>
+            <button onclick="resetChecks('sga_flow')" class="bg-purple-800 text-xs px-3 py-1 rounded">🔄 重設</button>
+        </nav>
+        <div class="p-4 space-y-8">
+            <section>
+                <h3 class="med-section-title text-purple-700">置入前評估</h3>
+                <div class="ml-2 space-y-4">
+                    <div>
+                        <span class="med-sub-title">排除禁忌症</span>
+                        <div class="mt-2 space-y-2">
+                            <label class="flex items-center p-3 bg-white border rounded-lg shadow-sm"><input
+                                    type="checkbox" class="w-6 h-6 mr-3"><span>深昏迷且 GCS < 8</span></label>
+                            <label class="flex items-center p-3 bg-white border rounded-lg shadow-sm"><input
+                                    type="checkbox" class="w-6 h-6 mr-3"><span>無嘔吐反射 </span></label>
+                            <label class="flex items-center p-3 bg-white border rounded-lg shadow-sm"><input
+                                    type="checkbox" class="w-6 h-6 mr-3"><span>無口咽部病變</span></label>
+                            <label class="flex items-center p-3 bg-white border rounded-lg shadow-sm"><input
+                                    type="checkbox" class="w-6 h-6 mr-3"><span>無假牙、鼻胃管</span></label>
+                            <label class="flex items-center p-3 bg-white border rounded-lg shadow-sm"><input
+                                    type="checkbox" class="w-6 h-6 mr-3"><span>異物梗塞</span></label>
+                            <label class="flex items-center p-3 bg-white border rounded-lg shadow-sm"><input
+                                    type="checkbox" class="w-6 h-6 mr-3"><span>氣切</span></label>
+                            <label class="flex items-center p-3 bg-white border rounded-lg shadow-sm"><input
+                                    type="checkbox" class="w-6 h-6 mr-3"><span>張口需> 2 cm</span></label>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <!-- 支氣管頁面 -->
+    <div id="broncho_flow" class="tab-content bg-white min-h-screen">
+        <nav class="bg-teal-600 text-white p-4 sticky top-0 flex items-center justify-between shadow-lg z-50">
+            <button onclick="showTab('home')" class="font-bold">〈 返回</button>
+            <h2 class="font-bold">支氣管擴張劑 </h2>
+        </nav>
+
+        <div class="p-6">
+            <div class="bg-teal-50 border-2 border-teal-100 p-6 rounded-3xl shadow-sm">
+                <div class="flex items-center mb-6">
+                    <div
+                        class="bg-teal-600 text-white w-10 h-10 rounded-full flex items-center justify-center font-bold mr-3">
+                        1</div>
+                    <p class="font-bold text-teal-900">一次可給予 2 劑</p>
+                </div>
+                <div class="flex items-center mb-6">
+                    <div
+                        class="bg-teal-600 text-white w-10 h-10 rounded-full flex items-center justify-center font-bold mr-3">
+                        2</div>
+                    <p class="font-bold text-teal-900">每次噴藥間隔 30秒 ~ 1分鐘</p>
+                </div>
+                <div class="flex items-center border-t border-teal-200 pt-6 mt-2">
+                    <div
+                        class="bg-orange-500 text-white w-10 h-10 rounded-full flex items-center justify-center font-bold mr-3">
+                        !</div>
+                    <p class="text-orange-700 font-bold italic">若無效，需間隔 20 分鐘後才可再次給藥 (2劑)</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        let currentDose = 0;
+
+        function showTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            const target = document.getElementById(tabId);
+            if (target) target.classList.add('active');
+            window.scrollTo(0, 0);
+        }
+
+        // NTG 邏輯
+        document.addEventListener('change', function (e) {
+            if (e.target.type === 'checkbox') {
+                const span = e.target.nextElementSibling;
+                if (span) e.target.checked ? span.classList.add('checked-text') : span.classList.remove('checked-text');
+                if (e.target.classList.contains('ntg-check')) {
+                    const checks = document.querySelectorAll('.ntg-check');
+                    const allChecked = Array.from(checks).every(c => c.checked);
+                    document.getElementById('ntg-action-area').classList.toggle('logic-lock', !allChecked);
+                }
+            }
+        });
+
+        function addNtgDose() {
+            if (currentDose < 3) {
+                currentDose++;
+                document.getElementById('ntg-progress').style.width = ((currentDose - 1) / 2 * 80) + '%';
+                const dot = document.querySelector(`#ntg-dot-${currentDose} .step-circle`);
+                dot.className = "step-circle bg-orange-500 text-white font-bold";
+                if (currentDose < 3) {
+                    document.getElementById('dose-num').innerText = currentDose + 1;
+                } else {
+                    const btn = document.getElementById('ntg-btn');
+                    btn.disabled = true;
+                    btn.innerText = "已達上限 (3次)";
+                    btn.className = "w-full bg-gray-400 text-white py-5 rounded-3xl font-black shadow-lg text-xl";
+                }
+            }
+        }
+
+        function resetChecks(tabId) {
+            const checkboxes = document.querySelectorAll(`#${tabId} input[type="checkbox"]`);
+            checkboxes.forEach(cb => {
+                cb.checked = false;
+                if (cb.nextElementSibling) cb.nextElementSibling.classList.remove('checked-text');
+            });
+            if (tabId === 'ntg_flow') {
+                document.getElementById('ntg-action-area').classList.add('logic-lock');
+            }
+        }
+
+        function resetNtgTimeline() {
+            resetChecks('ntg_flow');
+            currentDose = 0;
+            document.getElementById('ntg-progress').style.width = '0%';
+            document.getElementById('dose-num').innerText = "1";
+            const btn = document.getElementById('ntg-btn');
+            btn.disabled = false;
+            btn.innerText = "執行給藥 (第 1 次)";
+            btn.className = "w-full bg-orange-500 text-white py-5 rounded-3xl font-black shadow-xl text-xl";
+            for (let i = 1; i <= 3; i++) {
+                const dot = document.querySelector(`#ntg-dot-${i} .step-circle`);
+                dot.className = "step-circle bg-gray-200 text-gray-500 font-bold";
+            }
+        }
+    </script>
+</body>
+
+</html>
